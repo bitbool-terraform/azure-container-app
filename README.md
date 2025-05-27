@@ -17,7 +17,6 @@ vnet =
 
 container_app_envs = {
     env1 = {
-        name = "env1"
         subnet_id = "10.64.0.0/18"
         resource_group = "rg1"
         region = "west europe"
@@ -32,6 +31,7 @@ container_apps = {
         tag = "latest"
         volume_mounts = ""
         ingress_enabled = true
+        ingress = {}
 
     }
 }

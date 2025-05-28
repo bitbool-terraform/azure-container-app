@@ -1,6 +1,5 @@
 locals {
-    container_app_env = "ASd"
-
-    subnet_id = "ADf"
+    
+    name_prefix = format("%s-%s",var.project,var.systemenv)
 
 }

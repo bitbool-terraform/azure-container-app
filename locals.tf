@@ -8,6 +8,7 @@ locals {
             backend_port = var.app_gw.backend_port
             path = lookup(var.app_gw,"path","/*")
             backend_target = format("%s-%s",var.systemenv,var.app_name)
+            pick_host_name_from_backend_address = var.appgw_hostname_override
         }
 
 

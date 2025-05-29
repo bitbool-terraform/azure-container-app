@@ -16,6 +16,10 @@ variable "app_volumes" { default = null }
 variable "app_secrets" { default = null }
 variable "app_ingress_enabled" { default = true }
 
+variable "appgw_hostname_override" { default = true }
+
+
+
 
 variable "app_gw" {  default = null  }
 variable "workload_profile" {}

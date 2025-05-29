@@ -1,7 +1,7 @@
 resource "azurerm_container_app" "container_app" {
   
   container_app_environment_id = var.container_app_environment_id
-  name                         = var.app_name
+  name                         = format("%s-%s",local.name_prefix,var.app_name)
   resource_group_name          = var.resource_group
   revision_mode                = var.revision_mode
   tags                         = {} #TODO

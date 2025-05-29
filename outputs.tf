@@ -14,3 +14,9 @@ output "latest_revision_fqdn" {
 output "latest_revision_name" {
   value = resource.azurerm_container_app.container_app.latest_revision_name
 }
+output "app_gw_rule" {
+  value = local.app_gw_rule
+}
+output "app_gw_backend_target" {
+  value = local.app_gw_backend_target
+}

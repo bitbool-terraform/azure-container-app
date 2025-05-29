@@ -14,8 +14,10 @@ variable "app_image" {}
 variable "app_command" { default = null }
 variable "app_volumes" { default = null }
 variable "app_secrets" { default = null }
-variable "app_ingress_enabled" {}
-variable "app_ingress" {}
+variable "app_ingress_enabled" { default = true }
+
+
+variable "app_gw" {  default = null  }
 variable "workload_profile" {}
 variable "container_app_environment_id" {}
 

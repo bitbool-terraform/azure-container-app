@@ -211,3 +211,10 @@ resource "azurerm_container_app" "container_app" {
   # }
 
 }
+
+resource "azurerm_container_app_custom_domain" "custom_domain" {
+  count = var.appgw_hostname_override ? 0 : 1
+
+  name                                     = var.app_gw.hostname
+  container_app_id                         = azurerm_container_app.container_app.id
+}

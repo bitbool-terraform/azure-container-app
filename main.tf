@@ -1,42 +1,30 @@
 resource "azurerm_container_app" "container_app" {
   
   container_app_environment_id = var.container_app_environment_id
-  name                         = format("%s-%s",local.name_prefix,var.app_name)
+  name                         = var.app_name
   resource_group_name          = var.resource_group
   revision_mode                = var.revision_mode
-  tags                         = {} #TODO
+  tags                         = var.tags
   workload_profile_name        = var.workload_profile
 
+
   # dynamic "secret" {
-  #   for_each = 
+  #   for_each = local.secrets_all
 
   #   content {
-  #     name                =  #TODO
-  #     identity            =  #TODO
-  #     key_vault_secret_id =  #TODO
+  #     name                =  secret.value.secret_name
+  #     identity            =  secret.value.identity #TODO with panos
+  #     key_vault_secret_id =  secret.value.key_vault_secret_id
   #   }
   # }
+
   template {
     max_replicas    = var.max_replicas
     min_replicas    = var.min_replicas
 
-
-
-    # dynamic "volume" {
-    #   for_each = var.app_volumes
-
-    #   content {
-    #     name         = volume.key
-    #     storage_name = #TODO
-    #     storage_type = #TODO
-    #   }
-    # }
-
-
-
   container {
 
-        name    = format("%s-%s",local.name_prefix,var.app_name)
+        name    = var.app_name
         
         image   = var.app_image
         command = var.app_command
@@ -45,13 +33,12 @@ resource "azurerm_container_app" "container_app" {
         memory  = var.memory
 
 
-
-        dynamic "env" { #env vars
-          for_each = var.environment
+        dynamic "env" {
+          for_each = var.app_env
 
           content {
-            name        = env.key
-            value       = env.value
+            name  = env.key
+            value = env.value
           }
         }
 
@@ -62,7 +49,6 @@ resource "azurerm_container_app" "container_app" {
         #   content {
         #     name        = env.value.name
         #     secret_name = env.value.secret_name
-        #     value       = env.value.value
         #   }
         # }
 
@@ -138,15 +124,6 @@ resource "azurerm_container_app" "container_app" {
         #   }
         # }
 
-
-        # dynamic "volume_mounts" {
-        #   for_each = container.value.volume_mounts == null ? [] : container.value.volume_mounts
-
-        #   content {
-        #     name = volume_mounts.value.name
-        #     path = volume_mounts.value.path
-        #   }
-        # }
   }
   }
 

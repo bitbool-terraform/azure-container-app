@@ -20,3 +20,22 @@ output "app_gw_rule" {
 output "app_gw_backend_target" {
   value = local.app_gw_backend_target
 }
+output "secrets_selected" {
+  value = local.secrets_selected
+}
+output "secrets_selected_all" {
+  value = local.secrets_selected_all
+}
+output "secrets_selected_all_ids" {
+  value = local.secrets_selected_all_ids
+}
+
+output "secrets_imported_all" {
+  value = local.secrets_imported_all
+}
+output "secrets_imported_all_ids" {
+  value = local.secrets_imported_all_ids
+}
+output "secrets_all" {
+  value = local.secrets_all
+}

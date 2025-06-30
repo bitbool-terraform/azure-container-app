@@ -8,15 +8,15 @@ resource "azurerm_container_app" "container_app" {
   workload_profile_name        = var.workload_profile
 
 
-  # dynamic "secret" {
-  #   for_each = local.secrets_all
+  dynamic "secret" {
+    for_each = local.secrets_all
 
-  #   content {
-  #     name                =  secret.value.secret_name
-  #     identity            =  secret.value.identity #TODO with panos
-  #     key_vault_secret_id =  secret.value.key_vault_secret_id
-  #   }
-  # }
+    content {
+      name                =  secret.value.secret_name
+      identity            =  secret.value.identity_id
+      key_vault_secret_id =  secret.value.key_vault_secret_id
+    }
+  }
 
   template {
     max_replicas    = var.max_replicas
@@ -43,24 +43,24 @@ resource "azurerm_container_app" "container_app" {
         }
 
 
-        # dynamic "env" { #secrets
-        #   for_each = container.value.env == null ? [] : container.value.env
+        dynamic "env" { #secrets
+          for_each = local.secrets_all
 
-        #   content {
-        #     name        = env.value.name
-        #     secret_name = env.value.secret_name
-        #   }
-        # }
+          content {
+            name        = env.value.envvar_name
+            secret_name = env.value.secret_name
+          }
+        }
 
 
 
 
         # dynamic "liveness_probe" {
-        #   for_each = container.value.liveness_probe == null ? [] : [container.value.liveness_probe]
+        #   for_each = var.liveness_probe_enable == null ? [] : [container.value.liveness_probe]
 
         #   content {
-        #     port                    = liveness_probe.value.port
-        #     transport               = liveness_probe.value.transport
+        #     port                    = var.target_port
+        #     transport               = var.liveness_probe_transport
         #     failure_count_threshold = liveness_probe.value.failure_count_threshold
         #     host                    = liveness_probe.value.host
         #     initial_delay           = liveness_probe.value.initial_delay
@@ -127,14 +127,14 @@ resource "azurerm_container_app" "container_app" {
   }
   }
 
-  # dynamic "identity" {
-  #   for_each = var.identities #needs data source to retrieve IDs
+  dynamic "identity" {
+    for_each = var.identity_use_system_assigned == true ||  var.identities != null ? [var.identity_use_system_assigned] : []
+    content {
+      type         = var.identity_use_system_assigned == true ? var.identities != null ? "SystemAssigned, UserAssigned" : "SystemAssigned" : var.identities != null ? "UserAssigned" : null
+      identity_ids = local.app_identity_ids
+    }
+  }
 
-  #   content {
-  #     type         = identity.value.type
-  #     identity_ids = identity.value.identity_ids
-  #   }
-  # }
 
   dynamic "ingress" {
     for_each = var.app_ingress_enabled == false ? [] : [var.app_ingress_enabled]

@@ -36,7 +36,7 @@ locals {
 
   secrets_selected_all_ids = {
     for k, v in local.secrets_selected_all : 
-        k => merge(v,{key_vault_secret_id = data.azurerm_key_vault_secret.secret[k].versionless_id})
+        k => merge(v,{key_vault_secret_id = data.azurerm_key_vault_secret.secret[k].versionless_id},{identity_id = data.azurerm_user_assigned_identity.id[v.group].id})
   }
 
 
@@ -45,17 +45,21 @@ locals {
       for secret_name in data.azurerm_key_vault_secrets.all_secrets[group].names : 
       secret_name => {
         group               = group
-        secret_name         = secret_name
+        secret_name         = secret_name 
         envvar_name         = secret_name
         key_vault_name      = group_data.key_vault_name
+        identity            = lookup(group_data,"identity",var.identity_default)
       }
     } if lookup(group_data,"import_all",false) == true
   ]...)
 
   secrets_imported_all_ids = {
     for k, v in local.secrets_imported_all : 
-        k => merge(v,{key_vault_secret_id = data.azurerm_key_vault_secret.secret_imported[k].versionless_id})
+        k => merge(v,{key_vault_secret_id = data.azurerm_key_vault_secret.secret_imported[k].versionless_id},{identity_id = data.azurerm_user_assigned_identity.id[v.group].id})
   }
 
   secrets_all = merge(local.secrets_imported_all_ids,local.secrets_selected_all_ids)
+
+
+  app_identity_ids = [for id in data.azurerm_user_assigned_identity.app_id : id.id]
 }

@@ -15,7 +15,7 @@ variable "app_command" { default = null }
 variable "app_volumes" { default = null }
 variable "app_secrets" { default = null }
 variable "secrets" { default = null }
-variable "identity_default" { default = "default_mi" } #TODO with panos
+variable "identity_default" { default = null }
 variable "app_ingress_enabled" { default = true }
 
 variable "appgw_hostname_override" { default = false }
@@ -38,6 +38,7 @@ variable "app_env" {
 }
 
 variable "identities" { default = null }
+variable "identity_use_system_assigned" { default = false }
 
 
 variable "target_port" { default = 80 }

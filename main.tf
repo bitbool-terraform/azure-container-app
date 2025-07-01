@@ -34,6 +34,7 @@ resource "azurerm_container_app" "container_app" {
         memory  = var.memory
 
 
+
         dynamic "env" {
           for_each = var.app_env
 
@@ -52,6 +53,7 @@ resource "azurerm_container_app" "container_app" {
             secret_name = env.value.secret_name
           }
         }
+
 
         dynamic "liveness_probe" {
           for_each = lookup(var.liveness_probe,"enabled",false) == true ? [var.liveness_probe] : []
@@ -77,54 +79,56 @@ resource "azurerm_container_app" "container_app" {
           }
         }
 
-        # dynamic "readiness_probe" {
-        #   for_each = container.value.readiness_probe == null ? [] : [container.value.readiness_probe]
+        dynamic "readiness_probe" {
+          for_each = lookup(var.readiness_probe,"enabled",false) == true ? [var.readiness_probe] : []
 
-        #   content {
-        #     port                    = readiness_probe.value.port
-        #     transport               = readiness_probe.value.transport
-        #     failure_count_threshold = readiness_probe.value.failure_count_threshold
-        #     host                    = readiness_probe.value.host
-        #     interval_seconds        = readiness_probe.value.interval_seconds
-        #     path                    = readiness_probe.value.path
-        #     success_count_threshold = readiness_probe.value.success_count_threshold
-        #     timeout                 = readiness_probe.value.timeout
+          content {
+            port                    = lookup(var.readiness_probe,"port",var.readiness_probe_defaults.port)
+            transport               = lookup(var.readiness_probe,"transport",var.readiness_probe_defaults.transport)
+            failure_count_threshold = lookup(var.readiness_probe,"failure_count_threshold",var.readiness_probe_defaults.failure_count_threshold)
+            host                    = lookup(var.readiness_probe,"host",null)
+            interval_seconds        = lookup(var.readiness_probe,"interval_seconds",var.readiness_probe_defaults.interval_seconds)
+            path                    = lookup(var.readiness_probe,"path",var.readiness_probe_defaults.path)
+            success_count_threshold = lookup(var.readiness_probe,"success_count_threshold",var.readiness_probe_defaults.success_count_threshold)
+            timeout                 = lookup(var.readiness_probe,"timeout",var.readiness_probe_defaults.timeout)
 
-        #     dynamic "header" {
-        #       for_each = readiness_probe.value.header == null ? [] : [readiness_probe.value.header]
+            dynamic "header" {
+              for_each = lookup(var.readiness_probe,"headers",null) != null ? var.readiness_probe.headers : {}
 
-        #       content {
-        #         name  = header.value.name
-        #         value = header.value.value
-        #       }
-        #     }
-        #   }
-        # }
-        # dynamic "startup_probe" {
-        #   for_each = container.value.startup_probe == null ? [] : [container.value.startup_probe]
+              content {
+                name  = header.value.name
+                value = header.value.value
+              }
+            }
+          }
+        }
 
-        #   content {
-        #     port                    = startup_probe.value.port
-        #     transport               = startup_probe.value.transport
-        #     failure_count_threshold = startup_probe.value.failure_count_threshold
-        #     host                    = startup_probe.value.host
-        #     interval_seconds        = startup_probe.value.interval_seconds
-        #     path                    = startup_probe.value.path
-        #     timeout                 = startup_probe.value.timeout
+        dynamic "startup_probe" {
+          for_each = lookup(var.startup_probe,"enabled",false) == true ? [var.startup_probe] : []
 
-        #     dynamic "header" {
-        #       for_each = startup_probe.value.header == null ? [] : [startup_probe.value.header]
+          content {
+            port                    = lookup(var.startup_probe,"port",var.startup_probe_defaults.port)
+            transport               = lookup(var.startup_probe,"transport",var.startup_probe_defaults.transport)
+            failure_count_threshold = lookup(var.startup_probe,"failure_count_threshold",var.startup_probe_defaults.failure_count_threshold)
+            host                    = lookup(var.startup_probe,"host",null)
+            interval_seconds        = lookup(var.startup_probe,"interval_seconds",var.startup_probe_defaults.interval_seconds)
+            path                    = lookup(var.startup_probe,"path",var.startup_probe_defaults.path)
+            timeout                 = lookup(var.startup_probe,"timeout",var.startup_probe_defaults.timeout)
 
-        #       content {
-        #         name  = header.value.name
-        #         value = header.value.name
-        #       }
-        #     }
-        #   }
-        # }
+            dynamic "header" {
+              for_each = lookup(var.startup_probe,"headers",null) != null ? var.startup_probe.headers : {}
+
+              content {
+                name  = header.value.name
+                value = header.value.name
+              }
+            }
+          }
+        }
 
   }
   }
+
 
   dynamic "identity" {
     for_each = var.identity_use_system_assigned == true ||  var.identities != null ? [var.identity_use_system_assigned] : []
@@ -174,6 +178,7 @@ resource "azurerm_container_app" "container_app" {
   # }
 
 
+
   # dynamic "registry" {
   #   for_each = each.value.registry == null ? [] : each.value.registry
 
@@ -184,8 +189,8 @@ resource "azurerm_container_app" "container_app" {
   #     username             = registry.value.username
   #   }
   # }
-
 }
+
 
 resource "azurerm_container_app_custom_domain" "custom_domain" {
   count = var.appgw_hostname_override ? 0 : 1

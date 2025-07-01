@@ -179,16 +179,16 @@ resource "azurerm_container_app" "container_app" {
 
 
 
-  # dynamic "registry" {
-  #   for_each = each.value.registry == null ? [] : each.value.registry
+  dynamic "registry" {
+    for_each = var.registry != null ? [var.registry] : []
 
-  #   content {
-  #     server               = registry.value.server
-  #     identity             = registry.value.identity
-  #     password_secret_name = registry.value.password_secret_name
-  #     username             = registry.value.username
-  #   }
-  # }
+    content {
+      server               = var.registry.server
+      identity             = lookup(var.registry,"identity",null)
+      password_secret_name = lookup(var.registry,"password_secret_name",null)
+      username             = lookup(var.registry,"username",null)
+    }
+  }
 }
 
 

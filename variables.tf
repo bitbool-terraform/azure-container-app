@@ -42,6 +42,7 @@ variable "identity_use_system_assigned" { default = false }
 
 
 variable "target_port" { default = 80 }
+variable "registry" { default = null }
 
 
 

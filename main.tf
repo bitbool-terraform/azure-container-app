@@ -154,7 +154,7 @@ resource "azurerm_container_app" "container_app" {
   }
   }
 
-  
+
   dynamic "registry" {
     for_each = var.registry != null ? [var.registry] : []
 
@@ -173,4 +173,5 @@ resource "azurerm_container_app_custom_domain" "custom_domain" {
 
   name                                     = var.app_gw.hostname
   container_app_id                         = azurerm_container_app.container_app.id
+  certificate_binding_type                 = "Disabled"
 }

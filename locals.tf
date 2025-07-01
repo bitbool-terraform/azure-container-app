@@ -1,4 +1,6 @@
 locals {
+# App gw integration
+
     app_gw_rule = {
         "${var.app_name}" = {
             hostname = var.app_gw.hostname
@@ -19,6 +21,7 @@ locals {
     }
 
 
+# Secrets
   secrets_selected = {for k,v in var.secrets : k=>v if contains(var.app_secrets, k)}
 
   secrets_selected_all = merge([
@@ -29,7 +32,7 @@ locals {
         secret_name         = secret_data.secret_name
         envvar_name         = secret_data.secret_envvar
         key_vault_name      = group_data.key_vault_name
-        identity            = lookup(group_data,"identity",var.identity_default)
+        identity            = lookup(group_data,"identity",local.identity_default)
       }
     }
   ]...)
@@ -48,7 +51,7 @@ locals {
         secret_name         = secret_name
         envvar_name         = lookup(group_data,"import_all_as_caps",false) == true ? upper(replace(secret_name,"-","_")) : secret_name
         key_vault_name      = group_data.key_vault_name
-        identity            = lookup(group_data,"identity",var.identity_default)
+        identity            = lookup(group_data,"identity",local.identity_default)
       }
     } if lookup(group_data,"import_all",false) == true
   ]...)
@@ -61,5 +64,16 @@ locals {
   secrets_all = merge(local.secrets_imported_all_ids,local.secrets_selected_all_ids)
 
 
+
+
+# Identities
+  identity_default = try(var.identities[0], null)
+
   app_identity_ids = [for id in data.azurerm_user_assigned_identity.app_id : id.id]
+
+  identities_from_secrets =  distinct(compact([
+    for s in values(local.secrets_selected) : try(s.identity, null)
+  ]))
+
+  identities_full_list = distinct(compact(concat(local.identities_from_secrets, var.identities)))
 }

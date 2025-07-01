@@ -154,31 +154,7 @@ resource "azurerm_container_app" "container_app" {
   }
   }
 
-  # dynamic "ingress" {
-  #   for_each = each.value.ingress == null ? [] : [each.value.ingress]
-
-  #   content {
-  #     target_port                = ingress.value.target_port
-  #     allow_insecure_connections = ingress.value.allow_insecure_connections
-  #     external_enabled           = ingress.value.external_enabled
-  #     transport                  = ingress.value.transport
-
-  #     dynamic "traffic_weight" {
-  #       for_each = ingress.value.traffic_weight == null ? [] : [ingress.value.traffic_weight]
-
-  #       content {
-  #         percentage      = traffic_weight.value.percentage
-  #         label           = traffic_weight.value.label
-  #         latest_revision = traffic_weight.value.latest_revision
-  #         revision_suffix = traffic_weight.value.revision_suffix
-  #       }
-  #     }
-
-  #   }
-  # }
-
-
-
+  
   dynamic "registry" {
     for_each = var.registry != null ? [var.registry] : []
 

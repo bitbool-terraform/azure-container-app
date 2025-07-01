@@ -18,6 +18,7 @@ resource "azurerm_container_app" "container_app" {
     }
   }
 
+
   template {
     max_replicas    = var.max_replicas
     min_replicas    = var.min_replicas
@@ -52,32 +53,30 @@ resource "azurerm_container_app" "container_app" {
           }
         }
 
+        dynamic "liveness_probe" {
+          for_each = var.liveness_probe_enable == null ? [] : [container.value.liveness_probe]
 
+          content {
+            port                    = var.target_port
+            transport               = var.liveness_probe_transport
+            failure_count_threshold = liveness_probe.value.failure_count_threshold
+            host                    = liveness_probe.value.host
+            initial_delay           = liveness_probe.value.initial_delay
+            interval_seconds        = liveness_probe.value.interval_seconds
+            path                    = liveness_probe.value.path
+            timeout                 = liveness_probe.value.timeout
 
+            dynamic "header" {
+              for_each = liveness_probe.value.header == null ? [] : [liveness_probe.value.header]
 
-        # dynamic "liveness_probe" {
-        #   for_each = var.liveness_probe_enable == null ? [] : [container.value.liveness_probe]
-
-        #   content {
-        #     port                    = var.target_port
-        #     transport               = var.liveness_probe_transport
-        #     failure_count_threshold = liveness_probe.value.failure_count_threshold
-        #     host                    = liveness_probe.value.host
-        #     initial_delay           = liveness_probe.value.initial_delay
-        #     interval_seconds        = liveness_probe.value.interval_seconds
-        #     path                    = liveness_probe.value.path
-        #     timeout                 = liveness_probe.value.timeout
-
-        #     dynamic "header" {
-        #       for_each = liveness_probe.value.header == null ? [] : [liveness_probe.value.header]
-
-        #       content {
-        #         name  = header.value.name
-        #         value = header.value.value
-        #       }
-        #     }
-        #   }
-        # }
+              content {
+                name  = header.value.name
+                value = header.value.value
+              }
+            }
+          }
+        }
+        
         # dynamic "readiness_probe" {
         #   for_each = container.value.readiness_probe == null ? [] : [container.value.readiness_probe]
 

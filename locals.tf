@@ -45,8 +45,8 @@ locals {
       for secret_name in data.azurerm_key_vault_secrets.all_secrets[group].names : 
       secret_name => {
         group               = group
-        secret_name         = secret_name 
-        envvar_name         = secret_name
+        secret_name         = secret_name
+        envvar_name         = lookup(group_data,"import_all_as_caps",false) == true ? upper(replace(secret_name,"-","_")) : secret_name
         key_vault_name      = group_data.key_vault_name
         identity            = lookup(group_data,"identity",var.identity_default)
       }

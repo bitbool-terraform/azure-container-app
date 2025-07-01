@@ -15,7 +15,7 @@ variable "app_command" { default = null }
 variable "app_volumes" { default = null }
 variable "app_secrets" { default = null }
 variable "secrets" { default = null }
-variable "identity_default" { default = null }
+# variable "identity_default" { default = null }
 variable "app_ingress_enabled" { default = true }
 
 variable "appgw_hostname_override" { default = false }
@@ -48,4 +48,20 @@ variable "target_port" { default = 80 }
 
 # Config Defaults
 variable "revision_mode" { default = "Single" }
+
+
+# Probes
+variable "liveness_probe" { default = {} }
+
+variable "liveness_probe_defaults" {
+                      default = {
+                          port = 80
+                          transport = "HTTP"
+                          failure_count_threshold = 3
+                          initial_delay = 60
+                          interval_seconds = 30
+                          path = "/"
+                          timeout = 20
+                      } 
+                          }
 

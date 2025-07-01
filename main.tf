@@ -44,7 +44,7 @@ resource "azurerm_container_app" "container_app" {
         }
 
 
-        dynamic "env" { #secrets
+        dynamic "env" { # secrets
           for_each = local.secrets_all
 
           content {
@@ -54,20 +54,20 @@ resource "azurerm_container_app" "container_app" {
         }
 
         dynamic "liveness_probe" {
-          for_each = var.liveness_probe_enable == null ? [] : [container.value.liveness_probe]
+          for_each = lookup(var.liveness_probe,"enabled",false) == true ? [var.liveness_probe] : []
 
           content {
-            port                    = var.target_port
-            transport               = var.liveness_probe_transport
-            failure_count_threshold = liveness_probe.value.failure_count_threshold
-            host                    = liveness_probe.value.host
-            initial_delay           = liveness_probe.value.initial_delay
-            interval_seconds        = liveness_probe.value.interval_seconds
-            path                    = liveness_probe.value.path
-            timeout                 = liveness_probe.value.timeout
+            port                    = lookup(var.liveness_probe,"port",var.liveness_probe_defaults.port)
+            transport               = lookup(var.liveness_probe,"transport",var.liveness_probe_defaults.transport)
+            failure_count_threshold = lookup(var.liveness_probe,"failure_count_threshold",var.liveness_probe_defaults.failure_count_threshold)
+            host                    = lookup(var.liveness_probe,"host",null)
+            initial_delay           = lookup(var.liveness_probe,"initial_delay",var.liveness_probe_defaults.initial_delay)
+            interval_seconds        = lookup(var.liveness_probe,"interval_seconds",var.liveness_probe_defaults.interval_seconds)
+            path                    = lookup(var.liveness_probe,"path",var.liveness_probe_defaults.path)
+            timeout                 = lookup(var.liveness_probe,"timeout",var.liveness_probe_defaults.timeout)
 
             dynamic "header" {
-              for_each = liveness_probe.value.header == null ? [] : [liveness_probe.value.header]
+              for_each = lookup(var.liveness_probe,"headers",null) != null ? var.liveness_probe.headers : {}
 
               content {
                 name  = header.value.name
@@ -76,7 +76,7 @@ resource "azurerm_container_app" "container_app" {
             }
           }
         }
-        
+
         # dynamic "readiness_probe" {
         #   for_each = container.value.readiness_probe == null ? [] : [container.value.readiness_probe]
 
@@ -150,9 +150,6 @@ resource "azurerm_container_app" "container_app" {
   }
   }
 
-
-
-
   # dynamic "ingress" {
   #   for_each = each.value.ingress == null ? [] : [each.value.ingress]
 
@@ -175,6 +172,8 @@ resource "azurerm_container_app" "container_app" {
 
   #   }
   # }
+
+
   # dynamic "registry" {
   #   for_each = each.value.registry == null ? [] : each.value.registry
 

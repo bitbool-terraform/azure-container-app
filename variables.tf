@@ -37,7 +37,7 @@ variable "app_env" {
   default = {}
 }
 
-variable "identities" { default = null }
+variable "identities" { default = [] }
 variable "identity_use_system_assigned" { default = false }
 
 

@@ -4,7 +4,7 @@ locals {
     app_gw_rule = {
         "${var.app_name}" = {
             hostname = var.app_gw.hostname
-            backend_port = var.app_gw.backend_port
+            backend_port = lookup(var.app_gw,"backend_port",80)
             path = lookup(var.app_gw,"path","/*")
             backend_target = var.app_name
             pick_host_name_from_backend_address = var.appgw_hostname_override

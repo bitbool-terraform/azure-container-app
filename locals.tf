@@ -76,4 +76,6 @@ locals {
   ]))
 
   identities_full_list = distinct(compact(concat(local.identities_from_secrets, var.identities)))
+
+  identities_full_list_ids = [for id in data.azurerm_user_assigned_identity.app_id : id.id]
 }

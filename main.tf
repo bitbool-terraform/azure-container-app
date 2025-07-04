@@ -129,14 +129,29 @@ resource "azurerm_container_app" "container_app" {
   }
   }
 
+    lifecycle {
+    ignore_changes = [
+      template[0].container[0].image
+    ]
+  }
+
 
   dynamic "identity" {
-    for_each = var.identity_use_system_assigned == true ||  var.identities != null ? [var.identity_use_system_assigned] : []
+    for_each = var.identities != null ? ["run"] : []
     content {
-      type         = var.identity_use_system_assigned == true ? var.identities != null ? "SystemAssigned, UserAssigned" : "SystemAssigned" : var.identities != null ? "UserAssigned" : null
-      identity_ids = local.app_identity_ids
+      type         = "UserAssigned"
+      identity_ids = local.identities_full_list_ids
     }
   }
+
+  # dynamic "identity" {
+  #   for_each = var.identity_use_system_assigned == true ||  var.identities != null ? ["run"] : []
+  #   content {
+  #     type         = var.identity_use_system_assigned == true ? (var.identities != null ? "SystemAssigned, UserAssigned" : "SystemAssigned") : var.identities != null ? "UserAssigned" : null
+  #     identity_ids = local.identities_full_list
+  #   }
+  # }
+
 
 
   dynamic "ingress" {
@@ -160,7 +175,7 @@ resource "azurerm_container_app" "container_app" {
 
     content {
       server               = var.registry.server
-      identity             = lookup(var.registry,"identity",null)
+      identity             = try(data.azurerm_user_assigned_identity.app_id[var.registry.identity].id,null)
       password_secret_name = lookup(var.registry,"password_secret_name",null)
       username             = lookup(var.registry,"username",null)
     }

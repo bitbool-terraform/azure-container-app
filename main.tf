@@ -185,9 +185,9 @@ resource "azurerm_container_app" "container_app" {
 
 
 resource "azurerm_container_app_custom_domain" "custom_domain" {
-  count = var.appgw_hostname_override ? 0 : 1
+  count = var.appgw_hostname_override ? 0 : length(flatten([var.app_gw.hostname]))
 
-  name                                     = var.app_gw.hostname
+  name                                     = flatten([var.app_gw.hostname])[count.index]
   container_app_id                         = azurerm_container_app.container_app.id
   certificate_binding_type                 = "Disabled"
 }

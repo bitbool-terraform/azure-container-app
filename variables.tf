@@ -29,6 +29,7 @@ variable "container_app_environment_id" {}
 
 variable "cpu" { default = 0.25 }
 variable "memory" { default = "0.5Gi" }
+
 variable "max_replicas" { default = 1 }
 variable "min_replicas" { default = 1 }
 
@@ -44,8 +45,6 @@ variable "identity_use_system_assigned" { default = false }
 variable "target_port" { default = 80 }
 variable "registry" { default = null }
 
-variable "enable_diagnostic_setting" { default = false }
-variable "log_analytics_workspace_id" { default = null }
 
 
 

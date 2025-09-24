@@ -3,7 +3,7 @@ locals {
 
     app_gw_rule = {
         "${var.app_name}" = {
-            hostname = lookup(var.app_gw,"hostname",null) != null ? var.app_gw.hostname : resource.azurerm_container_app.container_app.ingress[0].fqdn
+            hostname = lookup(var.app_gw,"hostname",null) != null ? (can(tostring(var.app_gw.hostname))? tostring(var.app_gw.hostname): join(", ", [for v in var.app_gw.hostname : tostring(v)])) : resource.azurerm_container_app.container_app.ingress[0].fqdn
             backend_port = lookup(var.app_gw,"backend_port",80)
             path = lookup(var.app_gw,"path","/*")
             backend_target = var.app_name
@@ -12,6 +12,9 @@ locals {
 
 
     }
+
+
+
 
     app_gw_backend_target = {
         "${var.app_name}" = {

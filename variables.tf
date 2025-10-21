@@ -94,3 +94,5 @@ variable "startup_probe_defaults" {
                       } 
                           }
 
+
+variable "custom_scale_rules" { default = {} }

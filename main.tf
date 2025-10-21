@@ -23,6 +23,16 @@ resource "azurerm_container_app" "container_app" {
     max_replicas    = var.max_replicas
     min_replicas    = var.min_replicas
 
+  dynamic "custom_scale_rule" {
+    for_each = var.custom_scale_rules
+
+    content {
+      name             = custom_scale_rule.key
+      custom_rule_type = custom_scale_rule.value.custom_rule_type
+      metadata         = custom_scale_rule.value.metadata
+    }
+  }
+
   container {
 
         name    = var.app_name

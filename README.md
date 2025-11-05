@@ -2,6 +2,8 @@
 
 | Version    | Changes |
 | -------- | ------- |
+| v1.0.3  | Added http scalers.   |
+| v1.0.2  | Added custom scalers.   |
 | v1.0.1  | Minor bug fix in outputs.   |
 | v1.0.0  | First stable, synced with all projects.   |
 

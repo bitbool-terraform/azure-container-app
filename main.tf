@@ -33,6 +33,16 @@ resource "azurerm_container_app" "container_app" {
     }
   }
 
+  dynamic "http_scale_rule" {
+    for_each = var.http_scale_rules
+
+    content {
+      name             = http_scale_rule.key
+      concurrent_requests = http_scale_rule.value.concurrent_requests
+
+    }
+  }
+
   container {
 
         name    = var.app_name

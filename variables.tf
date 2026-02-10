@@ -1,20 +1,40 @@
-# General
+variable "container_app" {}
+
+
+
 variable "location" {}
 variable "resource_group" {}
 
 
-variable "tags" { default = null }
+variable "app_identity_ids" { default = [] }
+
+
+variable "name" {}
+
+variable "workload_profile" {}
+
+# New to defaults
+variable "image_default" { default = "nginx:latest" }
+variable "command_default" { default = null }
+variable "revision_mode_default" { default = "Single" }
+variable "tags_default" { default = null }
+
+variable "max_replicas_default" { default = 1 }
+variable "min_replicas_default" { default = 1 }
+
+variable "custom_scale_rules_default" { default = {} }
+variable "http_scale_rules_default" { default = {} }
+
+variable "cpu_default" { default = 0.25 }
+variable "memory_default" { default = "0.5Gi" }
 
 
 
-# Container app object
+#########################-----------OLD
+# General
 
-variable "app_name" {}
-variable "app_image" {}
-variable "app_command" { default = null }
-variable "app_volumes" { default = null }
-variable "app_secrets" { default = null }
-variable "secrets" { default = null }
+
+
 # variable "identity_default" { default = null }
 variable "app_ingress_enabled" { default = true }
 
@@ -24,22 +44,22 @@ variable "appgw_hostname_override" { default = false }
 
 
 variable "app_gw" {  default = null  }
-variable "workload_profile" {}
+
 variable "container_app_environment_id" {}
 
-variable "cpu" { default = 0.25 }
-variable "memory" { default = "0.5Gi" }
 
-variable "max_replicas" { default = 1 }
-variable "min_replicas" { default = 1 }
+
+
 
 variable "app_env" {
   type = map(string)
   default = {}
 }
 
-variable "identities" { default = [] }
-variable "identity_use_system_assigned" { default = false }
+
+
+
+# variable "identity_use_system_assigned" { default = false } #TODO
 
 
 variable "target_port" { default = 80 }
@@ -50,7 +70,7 @@ variable "registry" { default = null }
 
 
 # Config Defaults
-variable "revision_mode" { default = "Single" }
+
 
 
 # Probes
@@ -95,5 +115,3 @@ variable "startup_probe_defaults" {
                           }
 
 
-variable "custom_scale_rules" { default = {} }
-variable "http_scale_rules" { default = {} }

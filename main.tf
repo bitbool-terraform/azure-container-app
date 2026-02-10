@@ -1,11 +1,11 @@
 resource "azurerm_container_app" "container_app" {
   
-  container_app_environment_id = var.container_app_environment_id
-  name                         = var.app_name
-  resource_group_name          = var.resource_group
-  revision_mode                = var.revision_mode
-  tags                         = var.tags
-  workload_profile_name        = var.workload_profile
+  container_app_environment_id = var.container_app.environment_id
+  name                         = var.container_app.name
+  resource_group_name          = var.container_app.resource_group
+  revision_mode                = lookup(var.container_app,"revision_mode",var.revision_mode_default)
+  tags                         = lookup(var.container_app,"tags",tags_default)
+  workload_profile_name        = var.container_app.workload_profile
 
 
   dynamic "secret" {
@@ -14,17 +14,16 @@ resource "azurerm_container_app" "container_app" {
     content {
       name                =  secret.value.secret_name
       identity            =  secret.value.identity_id
-      key_vault_secret_id =  secret.value.key_vault_secret_id
+      key_vault_secret_id =  secret.value.secret_id
     }
   }
 
-
   template {
-    max_replicas    = var.max_replicas
-    min_replicas    = var.min_replicas
+    max_replicas    = lookup(var.container_app,"max_replicas",var.max_replicas_default)
+    min_replicas    = lookup(var.container_app,"min_replicas",var.min_replicas_default)
 
   dynamic "custom_scale_rule" {
-    for_each = var.custom_scale_rules
+    for_each = lookup(var.container_app,"custom_scale_rules",var.custom_scale_rules_default)
 
     content {
       name             = custom_scale_rule.key
@@ -34,36 +33,32 @@ resource "azurerm_container_app" "container_app" {
   }
 
   dynamic "http_scale_rule" {
-    for_each = var.http_scale_rules
+    for_each = lookup(var.container_app,"http_scale_rules",var.http_scale_rules_default)
 
     content {
-      name             = http_scale_rule.key
+      name                = http_scale_rule.key
       concurrent_requests = http_scale_rule.value.concurrent_requests
 
     }
   }
 
   container {
-
-        name    = var.app_name
+        name    = var.container_app.name
         
-        image   = var.app_image
-        command = var.app_command
+        image   = lookup(var.container_app,"image",var.image_default)
+        command = lookup(var.container_app,"command",var.command_default)
 
-        cpu     = var.cpu
-        memory  = var.memory
-
-
+        cpu     = lookup(var.container_app,"cpu",var.cpu_default)
+        memory  = lookup(var.container_app,"memory",var.memory_default)
 
         dynamic "env" {
-          for_each = var.app_env
+          for_each = lookup(var.container_app,"env_vars",{})
 
           content {
             name  = env.key
             value = env.value
           }
         }
-
 
         dynamic "env" { # secrets
           for_each = local.secrets_all
@@ -73,7 +68,6 @@ resource "azurerm_container_app" "container_app" {
             secret_name = env.value.secret_name
           }
         }
-
 
         dynamic "liveness_probe" {
           for_each = lookup(var.liveness_probe,"enabled",false) == true ? [var.liveness_probe] : []
@@ -159,10 +153,10 @@ resource "azurerm_container_app" "container_app" {
 
 
   dynamic "identity" {
-    for_each = var.identities != null ? ["run"] : []
+    for_each = toset(var.app_identity_ids)
     content {
       type         = "UserAssigned"
-      identity_ids = local.identities_full_list_ids
+      identity_ids = each.value
     }
   }
 
@@ -197,7 +191,7 @@ resource "azurerm_container_app" "container_app" {
 
     content {
       server               = var.registry.server
-      identity             = try(data.azurerm_user_assigned_identity.app_id[var.registry.identity].id,null)
+      identity             = lookup(var.registry,"identity_id",local.identity_id_default)
       password_secret_name = lookup(var.registry,"password_secret_name",null)
       username             = lookup(var.registry,"username",null)
     }

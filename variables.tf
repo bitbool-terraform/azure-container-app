@@ -1,12 +1,5 @@
 variable "container_app" {}
 
-# variable "location" {}
-# variable "resource_group" {}
-
-# variable "name" {}
-
-# variable "workload_profile" {}
-
 variable "image_default" { default = "nginx:latest" }
 variable "command_default" { default = null }
 variable "revision_mode_default" { default = "Single" }
@@ -64,5 +57,3 @@ variable "startup_probe_defaults" {
                           timeout = 20
                       } 
                           }
-
-

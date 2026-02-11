@@ -2,6 +2,7 @@
 
 | Version    | Changes |
 | -------- | ------- |
+| **v2.0.0**  | Major, backwards incompatible upgrade. Inputs as dict, not as input vars, default fallbacks in vars, secrets and identities as IDs, "data" retrieval purged, creates dependency DAG issues. |
 | v1.0.3  | Added http scalers.   |
 | v1.0.2  | Added custom scalers.   |
 | v1.0.1  | Minor bug fix in outputs.   |

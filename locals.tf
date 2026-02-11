@@ -1,6 +1,6 @@
 locals {
 # Identities
-  identity_id_default = try(var.app_identity_ids[0], null)
+  identity_id_default = try(var.container_app.identity_ids[0], null)
 
 
 secret_sets = lookup(var.container_app,"secret_sets",{})
@@ -15,7 +15,7 @@ secrets_all = merge([
     for secret_key, secret_data in group_data.secrets : 
     secret_key => {
       group               = group
-      secret_name         = "${group}-${secret_key}"
+      secret_name         = "${secret_key}"
       envvar_name         = secret_data.secret_envvar
       secret_id           = secret_data.secret_id
       identity_id         = lookup(group_data,"identity_id",local.identity_id_default)

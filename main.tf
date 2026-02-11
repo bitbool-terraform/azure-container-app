@@ -4,7 +4,7 @@ resource "azurerm_container_app" "container_app" {
   name                         = var.container_app.name
   resource_group_name          = var.container_app.resource_group
   revision_mode                = lookup(var.container_app,"revision_mode",var.revision_mode_default)
-  tags                         = lookup(var.container_app,"tags",tags_default)
+  tags                         = lookup(var.container_app,"tags",var.tags_default)
   workload_profile_name        = var.container_app.workload_profile
 
 
@@ -70,8 +70,7 @@ resource "azurerm_container_app" "container_app" {
         }
 
         dynamic "liveness_probe" {
-          for_each = lookup(var.liveness_probe,"enabled",false) == true ? [var.liveness_probe] : []
-
+          for_each = lookup(lookup(var.container_app,"liveness_probe",{}),"enabled",false) == true ? [var.liveness_probe] : []
           content {
             port                    = lookup(var.liveness_probe,"port",var.liveness_probe_defaults.port)
             transport               = lookup(var.liveness_probe,"transport",var.liveness_probe_defaults.transport)
@@ -94,8 +93,7 @@ resource "azurerm_container_app" "container_app" {
         }
 
         dynamic "readiness_probe" {
-          for_each = lookup(var.readiness_probe,"enabled",false) == true ? [var.readiness_probe] : []
-
+          for_each = lookup(lookup(var.container_app,"readiness_probe",{}),"enabled",false) == true ? [var.readiness_probe] : []
           content {
             port                    = lookup(var.readiness_probe,"port",var.readiness_probe_defaults.port)
             transport               = lookup(var.readiness_probe,"transport",var.readiness_probe_defaults.transport)
@@ -118,7 +116,7 @@ resource "azurerm_container_app" "container_app" {
         }
 
         dynamic "startup_probe" {
-          for_each = lookup(var.startup_probe,"enabled",false) == true ? [var.startup_probe] : []
+          for_each = lookup(lookup(var.container_app,"startup_proble",{}),"enabled",false) == true ? [var.startup_probe] : []
 
           content {
             port                    = lookup(var.startup_probe,"port",var.startup_probe_defaults.port)
@@ -151,15 +149,13 @@ resource "azurerm_container_app" "container_app" {
     ]
   }
 
-
   dynamic "identity" {
-    for_each = toset(var.app_identity_ids)
+    for_each = length(lookup(var.container_app, "identity_ids", var.identity_ids_default)) > 0 ? [1] : []
     content {
       type         = "UserAssigned"
-      identity_ids = each.value
+      identity_ids = toset(lookup(var.container_app, "identity_ids", var.identity_ids_default))
     }
   }
-
   # dynamic "identity" {
   #   for_each = var.identity_use_system_assigned == true ||  var.identities != null ? ["run"] : []
   #   content {
@@ -171,38 +167,38 @@ resource "azurerm_container_app" "container_app" {
 
 
   dynamic "ingress" {
-    for_each = var.app_ingress_enabled == false ? [] : [var.app_ingress_enabled]
+    for_each = lookup(var.container_app.ingress,"enabled",var.ingress_enabled_default) == false ? [] : [var.ingress_enabled_default]
 
     content {
-    allow_insecure_connections = true
-    external_enabled           = true
-    target_port                = var.target_port
+      allow_insecure_connections = true
+      external_enabled           = true
+      target_port                = var.container_app.ingress.target_port
 
-    traffic_weight {
-      percentage = 100
-      latest_revision = true
+      traffic_weight {
+        percentage = 100
+        latest_revision = true
+      }
     }
-  }
   }
 
 
   dynamic "registry" {
-    for_each = var.registry != null ? [var.registry] : []
+    for_each = lookup(var.container_app,"registry",null) != null ? ["run"] : []
 
     content {
-      server               = var.registry.server
-      identity             = lookup(var.registry,"identity_id",local.identity_id_default)
-      password_secret_name = lookup(var.registry,"password_secret_name",null)
-      username             = lookup(var.registry,"username",null)
+      server               = var.container_app.registry.server
+      identity             = lookup(var.container_app.registry,"identity_id",local.identity_id_default)
+      password_secret_name = lookup(var.container_app.registry,"password_secret_name",null)
+      username             = lookup(var.container_app.registry,"username",null)
     }
   }
 }
 
 
 resource "azurerm_container_app_custom_domain" "custom_domain" {
-  count = var.appgw_hostname_override ? 0 : length(flatten([var.app_gw.hostname]))
+  count = lookup(var.container_app.ingress,"hostname_override",false) ? 0 : length(flatten([var.container_app.ingress.hostname]))
 
-  name                                     = flatten([var.app_gw.hostname])[count.index]
+  name                                     = flatten([var.container_app.ingress.hostname])[count.index]
   container_app_id                         = azurerm_container_app.container_app.id
   certificate_binding_type                 = "Disabled"
 }

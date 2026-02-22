@@ -1,12 +1,11 @@
 resource "azurerm_container_app" "container_app" {
   
-  container_app_environment_id = var.container_app.environment_id
   name                         = var.container_app.name
   resource_group_name          = var.container_app.resource_group
+  container_app_environment_id = var.container_app.environment_id
   revision_mode                = lookup(var.container_app,"revision_mode",var.revision_mode_default)
   tags                         = lookup(var.container_app,"tags",var.tags_default)
   workload_profile_name        = var.container_app.workload_profile
-
 
   dynamic "secret" {
     for_each = local.secrets_all
@@ -22,25 +21,34 @@ resource "azurerm_container_app" "container_app" {
     max_replicas    = lookup(var.container_app,"max_replicas",var.max_replicas_default)
     min_replicas    = lookup(var.container_app,"min_replicas",var.min_replicas_default)
 
-  dynamic "custom_scale_rule" {
-    for_each = lookup(var.container_app,"custom_scale_rules",var.custom_scale_rules_default)
-
-    content {
-      name             = custom_scale_rule.key
-      custom_rule_type = custom_scale_rule.value.custom_rule_type
-      metadata         = custom_scale_rule.value.metadata
+    dynamic "volume" {
+      for_each = lookup(var.container_app,"volumes",{})
+      content {
+        name         = volume.key
+        storage_name = volume.value.storage_name
+        storage_type = lookup(volume.value,"storage_type", "AzureFile")
+      }
     }
-  }
 
-  dynamic "http_scale_rule" {
-    for_each = lookup(var.container_app,"http_scale_rules",var.http_scale_rules_default)
+    dynamic "custom_scale_rule" {
+      for_each = lookup(var.container_app,"custom_scale_rules",var.custom_scale_rules_default)
 
-    content {
-      name                = http_scale_rule.key
-      concurrent_requests = http_scale_rule.value.concurrent_requests
-
+      content {
+        name             = custom_scale_rule.key
+        custom_rule_type = custom_scale_rule.value.custom_rule_type
+        metadata         = custom_scale_rule.value.metadata
+      }
     }
-  }
+
+    dynamic "http_scale_rule" {
+      for_each = lookup(var.container_app,"http_scale_rules",var.http_scale_rules_default)
+
+      content {
+        name                = http_scale_rule.key
+        concurrent_requests = http_scale_rule.value.concurrent_requests
+
+      }
+    }
 
   container {
         name    = var.container_app.name
@@ -69,20 +77,28 @@ resource "azurerm_container_app" "container_app" {
           }
         }
 
-        dynamic "liveness_probe" {
-          for_each = lookup(lookup(var.container_app,"liveness_probe",{}),"enabled",false) == true ? [var.liveness_probe] : []
+        dynamic "volume_mounts" {
+          for_each = lookup(var.container_app,"volumes",{})
           content {
-            port                    = lookup(var.liveness_probe,"port",var.liveness_probe_defaults.port)
-            transport               = lookup(var.liveness_probe,"transport",var.liveness_probe_defaults.transport)
-            failure_count_threshold = lookup(var.liveness_probe,"failure_count_threshold",var.liveness_probe_defaults.failure_count_threshold)
-            host                    = lookup(var.liveness_probe,"host",null)
-            initial_delay           = lookup(var.liveness_probe,"initial_delay",var.liveness_probe_defaults.initial_delay)
-            interval_seconds        = lookup(var.liveness_probe,"interval_seconds",var.liveness_probe_defaults.interval_seconds)
-            path                    = lookup(var.liveness_probe,"path",var.liveness_probe_defaults.path)
-            timeout                 = lookup(var.liveness_probe,"timeout",var.liveness_probe_defaults.timeout)
+            name = volume_mounts.key
+            path = volume_mounts.value.path
+          }
+        }
+
+        dynamic "liveness_probe" {
+          for_each = lookup(lookup(var.container_app,"liveness_probe",{}),"enabled",false) == true ? [1] : []
+          content {
+            port                    = lookup(var.container_app.liveness_probe,"port",var.liveness_probe_defaults.port)
+            transport               = lookup(var.container_app.liveness_probe,"transport",var.liveness_probe_defaults.transport)
+            failure_count_threshold = lookup(var.container_app.liveness_probe,"failure_count_threshold",var.liveness_probe_defaults.failure_count_threshold)
+            host                    = lookup(var.container_app.liveness_probe,"host",null)
+            initial_delay           = lookup(var.container_app.liveness_probe,"initial_delay",var.liveness_probe_defaults.initial_delay)
+            interval_seconds        = lookup(var.container_app.liveness_probe,"interval_seconds",var.liveness_probe_defaults.interval_seconds)
+            path                    = lookup(var.container_app.liveness_probe,"path",var.liveness_probe_defaults.path)
+            timeout                 = lookup(var.container_app.liveness_probe,"timeout",var.liveness_probe_defaults.timeout)
 
             dynamic "header" {
-              for_each = lookup(var.liveness_probe,"headers",null) != null ? var.liveness_probe.headers : {}
+              for_each = lookup(var.container_app.liveness_probe,"headers",null) != null ? var.container_app.liveness_probe.headers : {}
 
               content {
                 name  = header.value.name
@@ -93,19 +109,19 @@ resource "azurerm_container_app" "container_app" {
         }
 
         dynamic "readiness_probe" {
-          for_each = lookup(lookup(var.container_app,"readiness_probe",{}),"enabled",false) == true ? [var.readiness_probe] : []
+          for_each = lookup(lookup(var.container_app,"readiness_probe",{}),"enabled",false) == true ? [1] : []
           content {
-            port                    = lookup(var.readiness_probe,"port",var.readiness_probe_defaults.port)
-            transport               = lookup(var.readiness_probe,"transport",var.readiness_probe_defaults.transport)
-            failure_count_threshold = lookup(var.readiness_probe,"failure_count_threshold",var.readiness_probe_defaults.failure_count_threshold)
-            host                    = lookup(var.readiness_probe,"host",null)
-            interval_seconds        = lookup(var.readiness_probe,"interval_seconds",var.readiness_probe_defaults.interval_seconds)
-            path                    = lookup(var.readiness_probe,"path",var.readiness_probe_defaults.path)
-            success_count_threshold = lookup(var.readiness_probe,"success_count_threshold",var.readiness_probe_defaults.success_count_threshold)
-            timeout                 = lookup(var.readiness_probe,"timeout",var.readiness_probe_defaults.timeout)
+            port                    = lookup(var.container_app.readiness_probe,"port",var.readiness_probe_defaults.port)
+            transport               = lookup(var.container_app.readiness_probe,"transport",var.readiness_probe_defaults.transport)
+            failure_count_threshold = lookup(var.container_app.readiness_probe,"failure_count_threshold",var.readiness_probe_defaults.failure_count_threshold)
+            host                    = lookup(var.container_app.readiness_probe,"host",null)
+            interval_seconds        = lookup(var.container_app.readiness_probe,"interval_seconds",var.readiness_probe_defaults.interval_seconds)
+            path                    = lookup(var.container_app.readiness_probe,"path",var.readiness_probe_defaults.path)
+            success_count_threshold = lookup(var.container_app.readiness_probe,"success_count_threshold",var.readiness_probe_defaults.success_count_threshold)
+            timeout                 = lookup(var.container_app.readiness_probe,"timeout",var.readiness_probe_defaults.timeout)
 
             dynamic "header" {
-              for_each = lookup(var.readiness_probe,"headers",null) != null ? var.readiness_probe.headers : {}
+              for_each = lookup(var.readiness_probe,"headers",null) != null ? var.container_app.readiness_probe.headers : {}
 
               content {
                 name  = header.value.name
@@ -116,16 +132,16 @@ resource "azurerm_container_app" "container_app" {
         }
 
         dynamic "startup_probe" {
-          for_each = lookup(lookup(var.container_app,"startup_proble",{}),"enabled",false) == true ? [var.startup_probe] : []
+          for_each = lookup(lookup(var.container_app,"startup_proble",{}),"enabled",false) == true ? [1] : []
 
           content {
-            port                    = lookup(var.startup_probe,"port",var.startup_probe_defaults.port)
-            transport               = lookup(var.startup_probe,"transport",var.startup_probe_defaults.transport)
-            failure_count_threshold = lookup(var.startup_probe,"failure_count_threshold",var.startup_probe_defaults.failure_count_threshold)
-            host                    = lookup(var.startup_probe,"host",null)
-            interval_seconds        = lookup(var.startup_probe,"interval_seconds",var.startup_probe_defaults.interval_seconds)
-            path                    = lookup(var.startup_probe,"path",var.startup_probe_defaults.path)
-            timeout                 = lookup(var.startup_probe,"timeout",var.startup_probe_defaults.timeout)
+            port                    = lookup(var.container_app.startup_probe,"port",var.startup_probe_defaults.port)
+            transport               = lookup(var.container_app.startup_probe,"transport",var.startup_probe_defaults.transport)
+            failure_count_threshold = lookup(var.container_app.startup_probe,"failure_count_threshold",var.startup_probe_defaults.failure_count_threshold)
+            host                    = lookup(var.container_app.startup_probe,"host",null)
+            interval_seconds        = lookup(var.container_app.startup_probe,"interval_seconds",var.startup_probe_defaults.interval_seconds)
+            path                    = lookup(var.container_app.startup_probe,"path",var.startup_probe_defaults.path)
+            timeout                 = lookup(var.container_app.startup_probe,"timeout",var.startup_probe_defaults.timeout)
 
             dynamic "header" {
               for_each = lookup(var.startup_probe,"headers",null) != null ? var.startup_probe.headers : {}
@@ -164,8 +180,6 @@ resource "azurerm_container_app" "container_app" {
   #   }
   # }
 
-
-
   dynamic "ingress" {
     for_each = lookup(var.container_app.ingress,"enabled",var.ingress_enabled_default) == false ? [] : [var.ingress_enabled_default]
 
@@ -180,7 +194,6 @@ resource "azurerm_container_app" "container_app" {
       }
     }
   }
-
 
   dynamic "registry" {
     for_each = lookup(var.container_app,"registry",null) != null ? ["run"] : []

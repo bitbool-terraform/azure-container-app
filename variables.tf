@@ -17,6 +17,8 @@ variable "identity_ids_default" { default = [] }
 
 variable "ingress_enabled_default" { default = true }
 
+variable "secrets_as_list" { default = false }
+
 # Probes
 variable "liveness_probe" { default = {} }
 variable "liveness_probe_defaults" {

@@ -2,6 +2,7 @@
 
 | Version    | Changes |
 | -------- | ------- |
+| v1.0.4  | Added custom ingress certificate capability.   |
 | v1.0.3  | Added http scalers.   |
 | v1.0.2  | Added custom scalers.   |
 | v1.0.1  | Minor bug fix in outputs.   |

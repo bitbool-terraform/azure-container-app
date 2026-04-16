@@ -210,5 +210,6 @@ resource "azurerm_container_app_custom_domain" "custom_domain" {
 
   name                                     = flatten([var.app_gw.hostname])[count.index]
   container_app_id                         = azurerm_container_app.container_app.id
-  certificate_binding_type                 = "Disabled"
+  certificate_binding_type                 = lookup(var.app_gw,"certificate_binding_type","Disabled")
+  container_app_environment_certificate_id = lookup(var.app_gw,"container_app_environment_certificate_id",null)
 }

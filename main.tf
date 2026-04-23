@@ -121,7 +121,7 @@ resource "azurerm_container_app" "container_app" {
             timeout                 = lookup(var.container_app.readiness_probe,"timeout",var.readiness_probe_defaults.timeout)
 
             dynamic "header" {
-              for_each = lookup(var.readiness_probe,"headers",null) != null ? var.container_app.readiness_probe.headers : {}
+              for_each = lookup(var.container_app.readiness_probe,"headers",null) != null ? var.container_app.readiness_probe.headers : {}
 
               content {
                 name  = header.value.name
@@ -144,7 +144,7 @@ resource "azurerm_container_app" "container_app" {
             timeout                 = lookup(var.container_app.startup_probe,"timeout",var.startup_probe_defaults.timeout)
 
             dynamic "header" {
-              for_each = lookup(var.startup_probe,"headers",null) != null ? var.startup_probe.headers : {}
+              for_each = lookup(var.container_app.startup_probe,"headers",null) != null ? var.container_app.startup_probe : {}
 
               content {
                 name  = header.value.name

@@ -8,7 +8,7 @@ resource "azurerm_container_app" "container_app" {
   workload_profile_name        = var.container_app.workload_profile
 
   dynamic "secret" {
-    for_each = local.secrets_all
+    for_each = local.secrets_for_secret
 
     content {
       name                =  secret.value.secret_name
@@ -69,7 +69,7 @@ resource "azurerm_container_app" "container_app" {
         }
 
         dynamic "env" { # secrets
-          for_each = local.secrets_all
+          for_each = local.secrets_for_env
 
           content {
             name        = env.value.envvar_name
@@ -216,5 +216,4 @@ resource "azurerm_container_app_custom_domain" "custom_domain" {
   # certificate_binding_type                 = "Disabled"
   certificate_binding_type                 = lookup(var.container_app.ingress,"certificate_binding_type","Disabled")
   container_app_environment_certificate_id = lookup(var.container_app.ingress,"container_app_environment_certificate_id",null)
-}  
 }

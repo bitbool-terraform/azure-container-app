@@ -2,6 +2,7 @@
 
 | Version    | Changes |
 | -------- | ------- |
+| v2.2.0  | Added envs as list capability.  |
 | v2.1.0  | Added custom ingress certificate capability.  |
 | v2.0.2  | Fixed more probes bugs. |
 | v2.0.1  | Fixed probes bug, and added volume mounting capability.   |

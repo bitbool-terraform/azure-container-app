@@ -2,6 +2,7 @@
 
 | Version    | Changes |
 | -------- | ------- |
+| v2.1.0  | Added custom ingress certificate capability.  |
 | v2.0.2  | Fixed more probes bugs. |
 | v2.0.1  | Fixed probes bug, and added volume mounting capability.   |
 | **v2.0.0**  | Major, backwards incompatible upgrade. Inputs as dict, not as input vars, default fallbacks in vars, secrets and identities as IDs, "data" retrieval purged, creates dependency DAG issues. |

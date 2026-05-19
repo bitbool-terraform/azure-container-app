@@ -132,7 +132,7 @@ resource "azurerm_container_app" "container_app" {
         }
 
         dynamic "startup_probe" {
-          for_each = lookup(lookup(var.container_app,"startup_proble",{}),"enabled",false) == true ? [1] : []
+          for_each = lookup(lookup(var.container_app,"startup_probe",{}),"enabled",false) == true ? [1] : []
 
           content {
             port                    = lookup(var.container_app.startup_probe,"port",var.startup_probe_defaults.port)
@@ -213,5 +213,8 @@ resource "azurerm_container_app_custom_domain" "custom_domain" {
 
   name                                     = flatten([var.container_app.ingress.hostname])[count.index]
   container_app_id                         = azurerm_container_app.container_app.id
-  certificate_binding_type                 = "Disabled"
+  # certificate_binding_type                 = "Disabled"
+  certificate_binding_type                 = lookup(var.container_app.ingress,"certificate_binding_type","Disabled")
+  container_app_environment_certificate_id = lookup(var.container_app.ingress,"container_app_environment_certificate_id",null)
+}  
 }

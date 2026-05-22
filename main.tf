@@ -88,7 +88,7 @@ resource "azurerm_container_app" "container_app" {
         dynamic "liveness_probe" {
           for_each = lookup(lookup(var.container_app,"liveness_probe",{}),"enabled",false) == true ? [1] : []
           content {
-            port                    = lookup(var.container_app.liveness_probe,"port",var.liveness_probe_defaults.port)
+            port                    = try(var.container_app.liveness_probe.port,var.container_app.ingress.target_port,var.liveness_probe_defaults.port)
             transport               = lookup(var.container_app.liveness_probe,"transport",var.liveness_probe_defaults.transport)
             failure_count_threshold = lookup(var.container_app.liveness_probe,"failure_count_threshold",var.liveness_probe_defaults.failure_count_threshold)
             host                    = lookup(var.container_app.liveness_probe,"host",null)
@@ -111,10 +111,11 @@ resource "azurerm_container_app" "container_app" {
         dynamic "readiness_probe" {
           for_each = lookup(lookup(var.container_app,"readiness_probe",{}),"enabled",false) == true ? [1] : []
           content {
-            port                    = lookup(var.container_app.readiness_probe,"port",var.readiness_probe_defaults.port)
+            port                    = try(var.container_app.readiness_probe.port,var.container_app.ingress.target_port,var.readiness_probe_defaults.port)
             transport               = lookup(var.container_app.readiness_probe,"transport",var.readiness_probe_defaults.transport)
             failure_count_threshold = lookup(var.container_app.readiness_probe,"failure_count_threshold",var.readiness_probe_defaults.failure_count_threshold)
             host                    = lookup(var.container_app.readiness_probe,"host",null)
+            initial_delay           = lookup(var.container_app.readiness_probe,"initial_delay",var.readiness_probe_defaults.initial_delay)
             interval_seconds        = lookup(var.container_app.readiness_probe,"interval_seconds",var.readiness_probe_defaults.interval_seconds)
             path                    = lookup(var.container_app.readiness_probe,"path",var.readiness_probe_defaults.path)
             success_count_threshold = lookup(var.container_app.readiness_probe,"success_count_threshold",var.readiness_probe_defaults.success_count_threshold)
@@ -135,16 +136,17 @@ resource "azurerm_container_app" "container_app" {
           for_each = lookup(lookup(var.container_app,"startup_probe",{}),"enabled",false) == true ? [1] : []
 
           content {
-            port                    = lookup(var.container_app.startup_probe,"port",var.startup_probe_defaults.port)
+            port                    = try(var.container_app.startup_probe.port,var.container_app.ingress.target_port,var.startup_probe_defaults.port)
             transport               = lookup(var.container_app.startup_probe,"transport",var.startup_probe_defaults.transport)
             failure_count_threshold = lookup(var.container_app.startup_probe,"failure_count_threshold",var.startup_probe_defaults.failure_count_threshold)
             host                    = lookup(var.container_app.startup_probe,"host",null)
+            initial_delay           = lookup(var.container_app.startup_probe,"initial_delay",var.startup_probe_defaults.initial_delay)
             interval_seconds        = lookup(var.container_app.startup_probe,"interval_seconds",var.startup_probe_defaults.interval_seconds)
             path                    = lookup(var.container_app.startup_probe,"path",var.startup_probe_defaults.path)
             timeout                 = lookup(var.container_app.startup_probe,"timeout",var.startup_probe_defaults.timeout)
 
             dynamic "header" {
-              for_each = lookup(var.container_app.startup_probe,"headers",null) != null ? var.container_app.startup_probe : {}
+              for_each = lookup(var.container_app.startup_probe,"headers",null) != null ? var.container_app.startup_probe.headers : {}
 
               content {
                 name  = header.value.name

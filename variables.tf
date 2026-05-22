@@ -22,40 +22,40 @@ variable "secrets_as_list" { default = false }
 # Probes
 variable "liveness_probe" { default = {} }
 variable "liveness_probe_defaults" {
-                      default = {
-                          port = 80
-                          transport = "HTTP"
-                          failure_count_threshold = 3
-                          initial_delay = 60
-                          interval_seconds = 30
-                          path = "/"
-                          timeout = 20
-                      } 
-                          }
+    default = {
+        port = 80
+        transport = "HTTP"
+        failure_count_threshold = 6
+        initial_delay = 10
+        interval_seconds = 30
+        path = "/"
+        timeout = 5
+    } 
+        }
 
 variable "readiness_probe" { default = {} }
 variable "readiness_probe_defaults" {
-                      default = {
-                          port = 80
-                          transport = "HTTP"
-                          failure_count_threshold = 3
-                          initial_delay = 60
-                          interval_seconds = 30
-                          path = "/"
-                          timeout = 20
-                          success_count_threshold = 3
-                      } 
-                          }
+    default = {
+        port = 80
+        transport = "HTTP"
+        failure_count_threshold = 6
+        initial_delay = 10
+        interval_seconds = 30
+        path = "/"
+        timeout = 5
+        success_count_threshold = 1
+    } 
+        }
 
 variable "startup_probe" { default = {} }
 variable "startup_probe_defaults" {
-                      default = {
-                          port = 80
-                          transport = "HTTP"
-                          failure_count_threshold = 3
-                          initial_delay = 60
-                          interval_seconds = 30
-                          path = "/"
-                          timeout = 20
-                      } 
-                          }
+        default = {
+            port = 80
+            transport = "HTTP"
+            failure_count_threshold = 20
+            initial_delay = 5
+            interval_seconds = 5
+            path = "/"
+            timeout = 5
+    } 
+        }

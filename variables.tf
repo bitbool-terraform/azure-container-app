@@ -17,17 +17,20 @@ variable "identity_ids_default" { default = [] }
 
 variable "ingress_enabled_default" { default = true }
 
+variable "target_port_default" { default = 80 }
+
 variable "secrets_as_list" { default = false }
 
 # Probes
 variable "liveness_probe" { default = {} }
 variable "liveness_probe_defaults" {
     default = {
+        enabled = true
         port = 80
         transport = "HTTP"
-        failure_count_threshold = 6
+        failure_count_threshold = 18
         initial_delay = 10
-        interval_seconds = 30
+        interval_seconds = 10
         path = "/"
         timeout = 5
     } 
@@ -36,11 +39,12 @@ variable "liveness_probe_defaults" {
 variable "readiness_probe" { default = {} }
 variable "readiness_probe_defaults" {
     default = {
+        enabled = true
         port = 80
         transport = "HTTP"
-        failure_count_threshold = 6
+        failure_count_threshold = 18
         initial_delay = 10
-        interval_seconds = 30
+        interval_seconds = 10
         path = "/"
         timeout = 5
         success_count_threshold = 1
@@ -50,8 +54,9 @@ variable "readiness_probe_defaults" {
 variable "startup_probe" { default = {} }
 variable "startup_probe_defaults" {
         default = {
+            enabled = true
             port = 80
-            transport = "HTTP"
+            transport = "TCP"
             failure_count_threshold = 20
             initial_delay = 5
             interval_seconds = 5

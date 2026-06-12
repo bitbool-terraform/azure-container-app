@@ -86,19 +86,19 @@ resource "azurerm_container_app" "container_app" {
         }
 
         dynamic "liveness_probe" {
-          for_each = lookup(lookup(var.container_app,"liveness_probe",{}),"enabled",false) == true ? [1] : []
+          for_each = lookup(lookup(var.container_app,"liveness_probe",{}),"enabled",var.liveness_probe_defaults.enabled) == true ? [1] : []
           content {
             port                    = try(var.container_app.liveness_probe.port,var.container_app.ingress.target_port,var.liveness_probe_defaults.port)
-            transport               = lookup(var.container_app.liveness_probe,"transport",var.liveness_probe_defaults.transport)
-            failure_count_threshold = lookup(var.container_app.liveness_probe,"failure_count_threshold",var.liveness_probe_defaults.failure_count_threshold)
-            host                    = lookup(var.container_app.liveness_probe,"host",null)
-            initial_delay           = lookup(var.container_app.liveness_probe,"initial_delay",var.liveness_probe_defaults.initial_delay)
-            interval_seconds        = lookup(var.container_app.liveness_probe,"interval_seconds",var.liveness_probe_defaults.interval_seconds)
-            path                    = lookup(var.container_app.liveness_probe,"path",var.liveness_probe_defaults.path)
-            timeout                 = lookup(var.container_app.liveness_probe,"timeout",var.liveness_probe_defaults.timeout)
+            transport               = lookup(lookup(var.container_app,"liveness_probe",{}),"transport",var.liveness_probe_defaults.transport)
+            failure_count_threshold = lookup(lookup(var.container_app,"liveness_probe",{}),"failure_count_threshold",var.liveness_probe_defaults.failure_count_threshold)
+            host                    = lookup(lookup(var.container_app,"liveness_probe",{}),"host",null)
+            initial_delay           = lookup(lookup(var.container_app,"liveness_probe",{}),"initial_delay",var.liveness_probe_defaults.initial_delay)
+            interval_seconds        = lookup(lookup(var.container_app,"liveness_probe",{}),"interval_seconds",var.liveness_probe_defaults.interval_seconds)
+            path                    = lookup(lookup(var.container_app,"liveness_probe",{}),"transport",var.liveness_probe_defaults.transport) == "TCP" ? null : lookup(lookup(var.container_app,"liveness_probe",{}),"path",var.liveness_probe_defaults.path)
+            timeout                 = lookup(lookup(var.container_app,"liveness_probe",{}),"timeout",var.liveness_probe_defaults.timeout)
 
             dynamic "header" {
-              for_each = lookup(var.container_app.liveness_probe,"headers",null) != null ? var.container_app.liveness_probe.headers : {}
+              for_each = lookup(lookup(var.container_app,"liveness_probe",{}),"headers",null) != null ? var.container_app.liveness_probe.headers : {}
 
               content {
                 name  = header.value.name
@@ -109,20 +109,20 @@ resource "azurerm_container_app" "container_app" {
         }
 
         dynamic "readiness_probe" {
-          for_each = lookup(lookup(var.container_app,"readiness_probe",{}),"enabled",false) == true ? [1] : []
+          for_each = lookup(lookup(var.container_app,"readiness_probe",{}),"enabled",var.readiness_probe_defaults.enabled) == true ? [1] : []
           content {
             port                    = try(var.container_app.readiness_probe.port,var.container_app.ingress.target_port,var.readiness_probe_defaults.port)
-            transport               = lookup(var.container_app.readiness_probe,"transport",var.readiness_probe_defaults.transport)
-            failure_count_threshold = lookup(var.container_app.readiness_probe,"failure_count_threshold",var.readiness_probe_defaults.failure_count_threshold)
-            host                    = lookup(var.container_app.readiness_probe,"host",null)
-            initial_delay           = lookup(var.container_app.readiness_probe,"initial_delay",var.readiness_probe_defaults.initial_delay)
-            interval_seconds        = lookup(var.container_app.readiness_probe,"interval_seconds",var.readiness_probe_defaults.interval_seconds)
-            path                    = lookup(var.container_app.readiness_probe,"path",var.readiness_probe_defaults.path)
-            success_count_threshold = lookup(var.container_app.readiness_probe,"success_count_threshold",var.readiness_probe_defaults.success_count_threshold)
-            timeout                 = lookup(var.container_app.readiness_probe,"timeout",var.readiness_probe_defaults.timeout)
+            transport               = lookup(lookup(var.container_app,"readiness_probe",{}),"transport",var.readiness_probe_defaults.transport)
+            failure_count_threshold = lookup(lookup(var.container_app,"readiness_probe",{}),"failure_count_threshold",var.readiness_probe_defaults.failure_count_threshold)
+            host                    = lookup(lookup(var.container_app,"readiness_probe",{}),"host",null)
+            initial_delay           = lookup(lookup(var.container_app,"readiness_probe",{}),"initial_delay",var.readiness_probe_defaults.initial_delay)
+            interval_seconds        = lookup(lookup(var.container_app,"readiness_probe",{}),"interval_seconds",var.readiness_probe_defaults.interval_seconds)
+            path                    = lookup(lookup(var.container_app,"readiness_probe",{}),"transport",var.readiness_probe_defaults.transport) == "TCP" ? null : lookup(lookup(var.container_app,"readiness_probe",{}),"path",var.readiness_probe_defaults.path)
+            success_count_threshold = lookup(lookup(var.container_app,"readiness_probe",{}),"success_count_threshold",var.readiness_probe_defaults.success_count_threshold)
+            timeout                 = lookup(lookup(var.container_app,"readiness_probe",{}),"timeout",var.readiness_probe_defaults.timeout)
 
             dynamic "header" {
-              for_each = lookup(var.container_app.readiness_probe,"headers",null) != null ? var.container_app.readiness_probe.headers : {}
+              for_each = lookup(lookup(var.container_app,"readiness_probe",{}),"headers",null) != null ? var.container_app.readiness_probe.headers : {}
 
               content {
                 name  = header.value.name
@@ -133,20 +133,20 @@ resource "azurerm_container_app" "container_app" {
         }
 
         dynamic "startup_probe" {
-          for_each = lookup(lookup(var.container_app,"startup_probe",{}),"enabled",false) == true ? [1] : []
+          for_each = lookup(lookup(var.container_app,"startup_probe",{}),"enabled",var.startup_probe_defaults.enabled) == true ? [1] : []
 
           content {
             port                    = try(var.container_app.startup_probe.port,var.container_app.ingress.target_port,var.startup_probe_defaults.port)
-            transport               = lookup(var.container_app.startup_probe,"transport",var.startup_probe_defaults.transport)
-            failure_count_threshold = lookup(var.container_app.startup_probe,"failure_count_threshold",var.startup_probe_defaults.failure_count_threshold)
-            host                    = lookup(var.container_app.startup_probe,"host",null)
-            initial_delay           = lookup(var.container_app.startup_probe,"initial_delay",var.startup_probe_defaults.initial_delay)
-            interval_seconds        = lookup(var.container_app.startup_probe,"interval_seconds",var.startup_probe_defaults.interval_seconds)
-            path                    = lookup(var.container_app.startup_probe,"path",var.startup_probe_defaults.path)
-            timeout                 = lookup(var.container_app.startup_probe,"timeout",var.startup_probe_defaults.timeout)
+            transport               = lookup(lookup(var.container_app,"startup_probe",{}),"transport",var.startup_probe_defaults.transport)
+            failure_count_threshold = lookup(lookup(var.container_app,"startup_probe",{}),"failure_count_threshold",var.startup_probe_defaults.failure_count_threshold)
+            host                    = lookup(lookup(var.container_app,"startup_probe",{}),"host",null)
+            initial_delay           = lookup(lookup(var.container_app,"startup_probe",{}),"initial_delay",var.startup_probe_defaults.initial_delay)
+            interval_seconds        = lookup(lookup(var.container_app,"startup_probe",{}),"interval_seconds",var.startup_probe_defaults.interval_seconds)
+            path                    = lookup(lookup(var.container_app,"startup_probe",{}),"transport",var.startup_probe_defaults.transport) == "TCP" ? null : lookup(lookup(var.container_app,"startup_probe",{}),"path",var.startup_probe_defaults.path)
+            timeout                 = lookup(lookup(var.container_app,"startup_probe",{}),"timeout",var.startup_probe_defaults.timeout)
 
             dynamic "header" {
-              for_each = lookup(var.container_app.startup_probe,"headers",null) != null ? var.container_app.startup_probe.headers : {}
+              for_each = lookup(lookup(var.container_app,"startup_probe",{}),"headers",null) != null ? var.container_app.startup_probe.headers : {}
 
               content {
                 name  = header.value.name
@@ -162,7 +162,6 @@ resource "azurerm_container_app" "container_app" {
     lifecycle {
     ignore_changes = [
       template[0].container[0].image,
-      tags,
       ingress[0].client_certificate_mode #TODO set to override lack of ingress UI setting "Session affinity". Revisit in future provider versions, maybe they'll fix it...
     ]
   }
@@ -188,7 +187,7 @@ resource "azurerm_container_app" "container_app" {
     content {
       allow_insecure_connections = true
       external_enabled           = true
-      target_port                = var.container_app.ingress.target_port
+      target_port                = lookup(var.container_app.ingress,"target_port",var.target_port_default)
 
       traffic_weight {
         percentage = 100

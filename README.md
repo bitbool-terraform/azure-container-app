@@ -2,6 +2,7 @@
 
 | Version    | Changes |
 | -------- | ------- |
+| v2.4.0  | Fine-grained probes and default on for all probes (azure forces liveness/readiness probes whatever tf's config, and it's better to have control over tf, than the defaults forced by azure).  |
 | v2.3.0  | Added new probe defaults and fixed probe bugs.  |
 | v2.2.0  | Added envs as list capability.  |
 | v2.1.0  | Added custom ingress certificate capability.  |

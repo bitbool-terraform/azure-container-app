@@ -55,6 +55,7 @@ resource "azurerm_container_app" "container_app" {
         
         image   = lookup(var.container_app,"image",var.image_default)
         command = lookup(var.container_app,"command",var.command_default)
+        args    = lookup (var.container_app,"args",null)
 
         cpu     = lookup(var.container_app,"cpu",var.cpu_default)
         memory  = lookup(var.container_app,"memory",var.memory_default)
@@ -162,6 +163,12 @@ resource "azurerm_container_app" "container_app" {
     lifecycle {
     ignore_changes = [
       template[0].container[0].image,
+
+      template[0].container[0].startup_probe,
+      template[0].container[0].readiness_probe,
+      template[0].container[0].liveness_probe,
+      tags,
+
       ingress[0].client_certificate_mode #TODO set to override lack of ingress UI setting "Session affinity". Revisit in future provider versions, maybe they'll fix it...
     ]
   }

@@ -5,7 +5,7 @@ output "ingress" {
   value = resource.azurerm_container_app.container_app.ingress
 }
 output "app_fqdn" {
-  value = resource.azurerm_container_app.container_app.ingress[0].fqdn
+  value = try(resource.azurerm_container_app.container_app.ingress[0].fqdn,null)
 }
 
 output "latest_revision_fqdn" {

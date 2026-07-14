@@ -32,6 +32,8 @@ variable "memory" { default = "0.5Gi" }
 
 variable "max_replicas" { default = 1 }
 variable "min_replicas" { default = 1 }
+variable "cooldown_period" { default = null }
+variable "polling_interval" { default = null }
 
 variable "app_env" {
   type = map(string)
@@ -95,5 +97,14 @@ variable "startup_probe_defaults" {
                           }
 
 
-variable "custom_scale_rules" { default = {} }
+variable "custom_scale_rules" {
+  type = map(object({
+    custom_rule_type  = string
+    metadata          = map(string)
+    secret_name       = optional(string)
+    trigger_parameter = optional(string)
+  }))
+
+  default = {}
+}
 variable "http_scale_rules" { default = {} }

@@ -5,7 +5,7 @@ output "ingress" {
   value = resource.azurerm_container_app.container_app.ingress
 }
 output "app_fqdn" {
-  value = resource.azurerm_container_app.container_app.ingress[0].fqdn
+  value = try(resource.azurerm_container_app.container_app.ingress[0].fqdn,null)
 }
 
 output "latest_revision_fqdn" {
@@ -14,12 +14,12 @@ output "latest_revision_fqdn" {
 output "latest_revision_name" {
   value = resource.azurerm_container_app.container_app.latest_revision_name
 }
-output "app_gw_rule" {
-  value = local.app_gw_rule
-}
-output "app_gw_backend_target" {
-  value = local.app_gw_backend_target
-}
+# output "app_gw_rule" {
+#   value = local.app_gw_rule
+# }
+# output "app_gw_backend_target" {
+#   value = local.app_gw_backend_target
+# }
 output "secrets_selected" {
   value = local.secrets_selected
 }

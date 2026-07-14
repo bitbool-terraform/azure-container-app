@@ -23,15 +23,28 @@ resource "azurerm_container_app" "container_app" {
     max_replicas    = var.max_replicas
     min_replicas    = var.min_replicas
 
-  dynamic "custom_scale_rule" {
-    for_each = var.custom_scale_rules
 
-    content {
-      name             = custom_scale_rule.key
-      custom_rule_type = custom_scale_rule.value.custom_rule_type
-      metadata         = custom_scale_rule.value.metadata
+    cooldown_period_in_seconds = var.cooldown_period
+    polling_interval_in_seconds = var.polling_interval
+
+    dynamic "custom_scale_rule" {
+      for_each = var.custom_scale_rules
+
+      content {
+        name             = custom_scale_rule.key
+        custom_rule_type = custom_scale_rule.value.custom_rule_type
+        metadata         = custom_scale_rule.value.metadata
+
+        dynamic "authentication" {
+           for_each = (custom_scale_rule.value.secret_name != null && custom_scale_rule.value.trigger_parameter != null) ? [custom_scale_rule.value] : []
+           content {
+              secret_name       = custom_scale_rule.value.secret_name
+              trigger_parameter = custom_scale_rule.value.trigger_parameter
+           }
+        }
+
+      }
     }
-  }
 
   dynamic "http_scale_rule" {
     for_each = var.http_scale_rules

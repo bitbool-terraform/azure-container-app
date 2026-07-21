@@ -165,11 +165,7 @@ resource "azurerm_container_app" "container_app" {
     lifecycle {
     ignore_changes = [
       template[0].container[0].image,
-      tags,
       ingress[0].client_certificate_mode, #TODO set to override lack of ingress UI setting "Session affinity". Revisit in future provider versions, maybe they'll fix it...
-    template[0].container[0].liveness_probe,
-    template[0].container[0].readiness_probe,
-    template[0].container[0].startup_probe,
     ]
   }
 
